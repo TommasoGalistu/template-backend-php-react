@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../../app/config/config.php';
 
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+// use Firebase\JWT\Key;
 
 // require 'vendor/autoload.php';
 
