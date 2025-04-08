@@ -2,6 +2,11 @@
 
 require_once __DIR__ . '/../../app/config/config.php';
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
+// require 'vendor/autoload.php';
+
 $status = [
     'response' => 200,
     'errors' => []
@@ -16,11 +21,44 @@ header('Content-Type: application/json');
 try{
     // constrollo che la email esista
     $user = $cms->getUser();
-    $userExist = $user->checkUser($data['email'], $data['password']);
+    $userValidate = $user->checkUser($data['email'], $data['password']);
 
-    if($userExist){
-        // ritono un token
-        echo json_encode($status);
+    if($userValidate['email']){
+        // inizio creazione token
+        // prendo l'ip
+        $clientIp = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+        // chiave segreta nell'env
+        $secretKey = $_ENV['DB_SECRET_KEY_JWT'];
+
+        // creo il termine del token
+        $tokenExpiry = time() + (3600 * 24);
+        // creo il payload
+        $payload = [
+            'sub' => $userValidate['id'],
+            'email' => $userValidate['email'],
+            'ip' => $clientIp,
+            'iat' => time(),
+            'exp' => $tokenExpiry
+        ];
+
+        $jwt = JWT::encode($payload, $secretKey, 'HS256');
+
+        setcookie('access_token', $jwt, [
+            'expires' => $tokenExpiry,
+            'path' => '/',
+            'secure' => true,
+            'httponly' => true,
+            'samesite' => 'Strict'
+        ]);
+
+        echo json_encode([
+            'message' => 'Login effettuato',
+            'user' => [
+                'id' => $userValidate['id'],
+                'email' => $userValidate['email']
+            ]
+        ]);
     }else{
         $status['response'] = 400;
         $status['errors'][] = "I dati non corrispondono:";

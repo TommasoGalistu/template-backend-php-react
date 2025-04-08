@@ -17,13 +17,13 @@ class User{
         return $result['count'] > 0;
     }
 
-    public function checkUser(string $email, string $password) {
+    public function checkUser(string $email, string $password){
         $user = $this->findByEmail($email);
-
+        // controllo con password hashata
         if($password === $user['password']){
-            return true;
+            return $user;
         }else{
-            return false;
+            return '';
         }
         
     }
