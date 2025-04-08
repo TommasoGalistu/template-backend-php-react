@@ -10,7 +10,7 @@ $rawJson = file_get_contents('php://input');
 $data = json_decode($rawJson, true);
 
 // constrollo che tutti i dati siano corretti formalmente
-$result = checkUser($data['email'], $data['password']); 
+$response = checkUser($data['email'], $data['password']); 
 
 // constrollo che la email non esista
 $user = $cms->getUser();
@@ -18,26 +18,31 @@ $existEmail = $user->emailExists($data['email']);
 
 if($existEmail){
     
-    $result['status']['response'] = 400;
-    $result['status']['errors'][] = "Email già registrata.";
+    $response['status'] = 400;
+    $response['errors'] = "Email già registrata.";
 }
 
 header('Content-Type: application/json');
 
 // faccio un try catch per salvarli nel db
-if($result['status']['response'] == 200){
+if($response['status'] == 200){
     try{
         $responseNumber = $user->createUser($data['email'], $data['password']);
 
-        $result['status']['response'] = $responseNumber;
-        echo json_encode($result);
+        // Aggiorna solo i campi interessati
+        $response['status'] = $responseNumber['status'];
+        $response['message'] = $responseNumber['message'];
+        $response['errors'] = $responseNumber['errors'];
+        $response['data'] = $responseNumber['data'];
+
+        echo json_encode($response);
     }catch(Exception $e){
-        $result['status']['response'] = 400;
-        $result['status']['errors'][] = "Riprova, qualcosa è andato male. Se il problema persiste contatta l'assistenza.";
+        $response['status'] = 400;
+        $response['errors'] = "Riprova, qualcosa è andato male. Se il problema persiste contatta l'assistenza.";
         echo json_encode($result);
     }
 }else{
-    echo json_encode($result);
+    echo json_encode($response);
 }
 
 

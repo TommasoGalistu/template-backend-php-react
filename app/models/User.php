@@ -31,7 +31,12 @@ class User{
     public function createUser(string $email, string $password){
         $this->db->runSQL('INSERT INTO users(email, password) VALUES (:email, :password)',['email' => $email, 'password' => $password]);
         
-        return 200;
+        return  [
+                    "status" => 200,
+                    "message" => "Operazione completata",
+                    "data" => $email,
+                    "errors" => []
+                ];
     }
 
     public function getById(int $id){

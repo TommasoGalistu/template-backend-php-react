@@ -7,9 +7,11 @@ use Firebase\JWT\Key;
 
 // require 'vendor/autoload.php';
 
-$status = [
-    'response' => 200,
-    'errors' => []
+$response = [
+    "status" => 200,         
+    "data" => [],               
+    "message" => "Operazione completata",
+    "errors" => []
 ];
 // Legge il corpo grezzo della richiesta da react
 $rawJson = file_get_contents('php://input');
@@ -52,24 +54,27 @@ try{
             'samesite' => 'Strict'
         ]);
 
-        echo json_encode([
-            'message' => 'Login effettuato',
-            'user' => [
+        $response = [
+            "status" => 200,         
+            "data" => [ 
                 'id' => $userValidate['id'],
                 'email' => $userValidate['email']
-            ]
-        ]);
+            ],               
+            "message" => "Accesso consentito.",
+            "errors" => []
+        ];
+        echo json_encode($response);
     }else{
-        $status['response'] = 400;
-        $status['errors'][] = "I dati non corrispondono:";
-        echo json_encode($status);
+        $response['status'] = 400;
+        $response['errors'] = "I dati non corrispondono..riprovare l'accesso o recupera la password.";
+        echo json_encode($response);
     }
     
 
 }catch(Exception $e){
-        $status['response'] = 400;
-        $status['errors'][] = "Riprova, qualcosa è andato male. Se il problema persiste contatta l'assistenza.";
-        echo json_encode($status);
+        $response['status'] = 400;
+        $response['errors'] = "Riprova, qualcosa è andato male. Se il problema persiste contatta l'assistenza.";
+        echo json_encode($response);
 }
 
 
