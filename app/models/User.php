@@ -9,22 +9,22 @@ class User{
     }
 
     public function emailExists(string $email): bool {
-        $sql = "SELECT COUNT(*) as count FROM users WHERE email = :email";
+        $sql = "SELECT COUNT('email') as total_email FROM users WHERE email = :email";
         
         $stmt = $this->db->runSQL($sql, ['email' =>$email]);
         $result = $stmt->fetch();
 
-        return $result['count'] > 0;
+        return $result['total_email'] > 0;
     }
 
     public function checkUser(string $email, string $password){
         $user = $this->findByEmail($email);
-        // controllo con password hashata
-        if($password === $user['password']){
-            return $user;
-        }else{
-            return '';
+        
+        if (!$user || !isset($user['password'])) {
+            return false;
         }
+        
+        return $password == $user['password'] ? $user : false;
         
     }
 

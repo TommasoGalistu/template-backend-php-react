@@ -1,0 +1,2 @@
+# php -S localhost:3000 -t api/
+# $dsn = "mysql:host=localhost;dbname=nome_database;charset=utf8mb4";

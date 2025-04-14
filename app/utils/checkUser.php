@@ -10,32 +10,36 @@ function checkUser(string $email, string $password){
         "errors" => []
     ];
 
-    // Validazione formato email
-    if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $response['status'] = 400;
-        $response['errors'] = "Email non valida.";
+    if (!preg_match('/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', $email)) {
+        
+        $response['errors'] = "Email non valida (regex).";
     }
 
     // Controlli sulla password
     if (strlen($password) <= 8) {
-        $response['status'] = 400;
+        
         $response['errors'] = "La password deve essere più lunga di 8 caratteri.";
     }
 
     if (!preg_match('/[A-Z]/', $password)) {
-        $response['status'] = 400;
+        
         $response['errors'] = "La password deve contenere almeno una lettera maiuscola.";
     }
 
     if (!preg_match('/[0-9]/', $password)) {
-        $response['status'] = 400;
+        
         $response['errors'] = "La password deve contenere almeno un numero.";
     }
 
     if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
-        $response['status'] = 400;
+        
         $response['errors'] = "La password deve contenere almeno un carattere speciale.";
     }
 
+
+    if(count($response['errors']) > 0){
+        $response['errors'] = 400;
+    }
+    
     return $response;
 }

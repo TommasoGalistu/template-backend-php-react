@@ -2,19 +2,25 @@
 
 require_once __DIR__ . '/../../app/config/config.php';
 require_once __DIR__ . '/../../app/utils/checkUser.php';
+require_once __DIR__ . '/../../app/utils/sanitizeData.php';
 
+header('Content-Type: application/json');
 // Legge il corpo grezzo della richiesta da react
+
 $rawJson = file_get_contents('php://input');
 
 // Lo decodifica in array associativo
 $data = json_decode($rawJson, true);
 
+[$email, $password] = sanitizeDataUser($data['email'], $data['password']);
+
 // constrollo che tutti i dati siano corretti formalmente
-$response = checkUser($data['email'], $data['password']); 
+$response = checkUser($email, $password); 
+
 
 // constrollo che la email non esista
 $user = $cms->getUser();
-$existEmail = $user->emailExists($data['email']);
+$existEmail = $user->emailExists($email);
 
 if($existEmail){
     
@@ -22,18 +28,20 @@ if($existEmail){
     $response['errors'] = "Email già registrata.";
 }
 
-header('Content-Type: application/json');
+
 
 // faccio un try catch per salvarli nel db
 if($response['status'] == 200){
     try{
-        $responseNumber = $user->createUser($data['email'], $data['password']);
+        $responseNumber = $user->createUser($email, $password);
 
         // Aggiorna solo i campi interessati
-        $response['status'] = $responseNumber['status'];
-        $response['message'] = $responseNumber['message'];
-        $response['errors'] = $responseNumber['errors'];
-        $response['data'] = $responseNumber['data'];
+        $response = [
+            "status" => $responseNumber['status'],         
+            "data" =>  $responseNumber['data'],               
+            "message" =>  $responseNumber['message'],
+            "errors" => $responseNumber['errors']
+        ];
 
         echo json_encode($response);
     }catch(Exception $e){
