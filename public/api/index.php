@@ -8,17 +8,17 @@ require_once __DIR__ . '/../../app/controllers/UserController.php';
 $uri = $_SERVER['REQUEST_URI'];
 $method = $_SERVER['REQUEST_METHOD'];
 $controller = new UserController();
-// $data = getRequestData();
+$data = file_get_contents('php://input');
 
 header('Content-Type: application/json');
 switch (true) {
     case ($uri === ROUTE_REGISTER && $method === 'POST'):
-        echo json_encode($controller->register(file_get_contents('php://input')));
+        echo json_encode($controller->register($data));
         break;
 
     case ($uri === ROUTE_LOGIN && $method === 'POST'):
         $clientIp = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        echo json_encode($controller->login(file_get_contents('php://input'), $clientIp));
+        echo json_encode($controller->login($data, $clientIp));
         break;
 
     default:
