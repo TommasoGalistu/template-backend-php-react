@@ -1,24 +1,34 @@
 <?php
-class Database extends PDO{
-    public function __construct(string $dsn, string $username, string $password, array $options = [])
-    {
-        $default_options[PDO::ATTR_DEFAULT_FETCH_MODE] = PDO::FETCH_ASSOC;
-        $default_options[PDO::ATTR_EMULATE_PREPARES] = false;
-        $default_options[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-        $options = array_replace($default_options, $options);
 
-        parent::__construct($dsn, $username, $password);
+class DB {
+    private static $instance = null;
+
+    public static function connect(array $config) {
+        $dsn = 'mysql:host=' . $config['db_host'] . ';dbname=' . $config['db_name'] . ';charset=utf8';
+        self::$instance = new PDO($dsn, $config['db_user'], $config['db_pass'], [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
+        ]);
     }
 
-    public function runSQL(string $sql, array $params){
-        if(!$params){
-            return $this->query($sql);
+    protected static function getInstance() {
+        if (!self::$instance) {
+            throw new Exception('Database non connesso. Chiama prima DB::connect.');
         }
+        return self::$instance;
+    }
 
-        
-        $stmt = $this->prepare($sql);
-        $stmt->execute($params);
+    public static function query(string $sql, array $data = []) {
+        $stmt = self::getInstance()->prepare($sql);
+        $stmt->execute($data);
         return $stmt;
+    }
 
+    public static function rows(string $sql, array $data = []) {
+        return self::query($sql, $data)->fetchAll();
+    }
+
+    public static function row(string $sql, array $data = []) {
+        return self::query($sql, $data)->fetch();
     }
 }
