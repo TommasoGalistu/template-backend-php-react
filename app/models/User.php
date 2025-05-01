@@ -8,7 +8,7 @@ class User {
     public static function create($email, $password) {
         DB::query("INSERT INTO users (email, password) VALUES (:email, :password)", [
             'email' => $email,
-            'password' => password_hash($password, PASSWORD_BCRYPT)
+            'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 12])
         ]);
     }
 }

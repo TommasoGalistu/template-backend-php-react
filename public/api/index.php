@@ -14,14 +14,15 @@ header('Content-Type: application/json');
 switch (true) {
     case ($uri === ROUTE_REGISTER && $method === 'POST'):
         echo json_encode($controller->register($data));
-        break;
+        exit;
 
     case ($uri === ROUTE_LOGIN && $method === 'POST'):
         $clientIp = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
         echo json_encode($controller->login($data, $clientIp));
-        break;
+        exit;
 
     default:
         http_response_code(404);
         echo json_encode(['error' => 'Not found']);
+        exit;
 }

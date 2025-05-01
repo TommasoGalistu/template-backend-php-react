@@ -2,7 +2,7 @@
 
 function loadEnv(string $path)
 {
-    if (!file_exists($path)) {
+    if (!is_file($path)) {
         throw new Exception(".env file not found at: $path");
     }
 
